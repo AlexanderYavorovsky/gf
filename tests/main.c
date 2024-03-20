@@ -1,27 +1,51 @@
 #include "minunit.h"
-#include <stdio.h>
 
-MU_TEST(test_test)
+#include "poly.h"
+
+MU_TEST(test_init)
 {
-    mu_check(1 == 1);
+    uint8_t a[] = {1, 2, 3};
+    poly_t f = poly_init_from_array(a, 3);
+
+    mu_check(f->deg == 2);
+    mu_check(f->coef[0] == 1);
+    mu_check(f->coef[1] == 2);
+    mu_check(f->coef[2] == 3);
+
+    poly_free(f);
 }
 
-MU_TEST(test2)
+MU_TEST_SUITE(suite_init)
 {
-    mu_check(0 == 0);
+    MU_RUN_TEST(test_init);
 }
 
-MU_TEST(test3)
+MU_TEST(test_copy)
 {
-    mu_check(3 == 3);
+    uint8_t a[] = {1, 2, 3};
+    poly_t f = poly_init_from_array(a, 3);
+    poly_t g = poly_copy(f);
+
+    mu_check(f->deg == g->deg);
+    mu_check(f->coef[0] == g->coef[0]);
+    mu_check(f->coef[1] == g->coef[1]);
+    mu_check(f->coef[2] == g->coef[2]);
+
+    poly_free(f);
+    poly_free(g);
+}
+
+MU_TEST_SUITE(suite_copy)
+{
+    MU_RUN_TEST(test_copy);
 }
 
 int main()
 {
-    MU_RUN_TEST(test_test);
-    MU_RUN_TEST(test2);
-    MU_RUN_TEST(test3);
+    MU_RUN_SUITE(suite_init);
+    MU_RUN_SUITE(suite_copy);
 
     MU_REPORT();
+
     return MU_EXIT_CODE;
 }
