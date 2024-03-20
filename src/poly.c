@@ -3,6 +3,8 @@
 
 #include "poly.h"
 
+static uint8_t mymax(uint8_t a, uint8_t b) { return a >= b ? a : b; }
+
 void poly_free(poly_t f)
 {
     if (f == NULL)
@@ -57,6 +59,120 @@ poly_t poly_copy(poly_t f)
 
     return g;
 }
+
+static void poly_normalize(poly_t f)
+{
+    uint8_t cnt = 0;
+    if (f == NULL)
+        return;
+
+    for (cnt = 0; cnt <= f->deg; cnt++)
+        if (f->coef[f->deg - cnt] != 0)
+            break;
+
+    f->deg -= cnt;
+}
+
+int poly_isequal(poly_t f, poly_t g)
+{
+    if (f->deg != g->deg)
+        return 0;
+    
+    for (uint8_t i = 0; i <= f->deg; i++)
+        if (f->coef[i] != g->coef[i])
+            return 0;
+
+    return 1;
+}
+
+poly_t poly_neg(poly_t f, uint8_t p)
+{
+    poly_t res;
+
+    if (f == NULL) 
+        return NULL;
+    
+    res = malloc(sizeof(*res));
+    if (res == NULL)
+        return NULL;
+
+    res->coef = malloc(f->deg * sizeof(res->coef));
+    if (res->coef == NULL)
+        return NULL;
+
+    res->deg = f->deg;
+
+    for (uint8_t i = 0; i <= f->deg; i++)
+        res->coef[i] = (p - f->coef[i]) % p;
+
+    poly_normalize(res);
+
+    return res;
+}
+
+poly_t poly_sum(poly_t f, poly_t g, uint8_t p)
+{
+    poly_t res;
+    uint8_t maxdeg;
+
+    res = malloc(sizeof(*res));
+    if (res == NULL)
+        return NULL;
+
+    maxdeg = mymax(f->deg, g->deg);
+    res->coef = calloc(maxdeg, sizeof(res->coef));
+    if (res->coef == NULL)
+        return NULL;
+
+    res->deg = maxdeg;
+
+    for (uint8_t i = 0; i <= maxdeg; i++)
+    {
+        if (i <= f->deg)
+            res->coef[i] += f->coef[i];
+        if (i <= g->deg)
+            res->coef[i] += g->coef[i];
+        res->coef[i] %= p;
+    }
+
+    poly_normalize(res);
+
+    return res;
+}
+
+poly_t poly_subtract(poly_t f, poly_t g, uint8_t p)
+{
+    poly_t gneg = poly_neg(g, p);
+    poly_t res = poly_sum(f, gneg, p);
+
+    poly_free(gneg);
+    
+    return res;
+}
+
+poly_t poly_multiply(poly_t f, poly_t g, uint8_t p)
+{
+    poly_t res;
+
+    res = malloc(sizeof(*res));
+    if (res == NULL)
+        return NULL;
+    
+    res->coef = calloc(f->deg + g->deg + 2, sizeof(res->coef));
+    if (res->coef == NULL)
+        return NULL;
+
+    res->deg = f->deg + g->deg;
+
+    for (uint8_t i = 0; i <= f->deg; i++)
+        for (uint8_t j = 0; j <= g->deg; j++)
+            res->coef[i + j] = (f->coef[i] * g->coef[j] + res->coef[i + j]) % p;
+
+    poly_normalize(res);
+
+    return res;
+}
+
 
 /* ::remove */
 void poly_print(poly_t f)

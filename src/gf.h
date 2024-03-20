@@ -1,7 +1,9 @@
 #include "poly.h"
 
-typedef struct
+struct gf
 {
     poly_t poly;
-    uint8_t ch;
-} *gf_t;
+    uint8_t p;
+};
+
+typedef struct gf *gf_t;
