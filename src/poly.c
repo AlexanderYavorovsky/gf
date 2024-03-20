@@ -77,12 +77,8 @@ int poly_isequal(poly_t f, poly_t g)
 {
     if (f->deg != g->deg)
         return 0;
-    
-    for (uint8_t i = 0; i <= f->deg; i++)
-        if (f->coef[i] != g->coef[i])
-            return 0;
 
-    return 1;
+    return !memcmp(f->coef, g->coef, (f->deg + 1) * sizeof(f->coef));
 }
 
 poly_t poly_neg(poly_t f, uint8_t p)
