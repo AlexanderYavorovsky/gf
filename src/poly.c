@@ -66,19 +66,29 @@ static void poly_normalize(poly_t f)
     if (f == NULL)
         return;
 
-    for (cnt = 0; cnt <= f->deg; cnt++)
+    for (cnt = 0; cnt < f->deg; cnt++)
         if (f->coef[f->deg - cnt] != 0)
             break;
 
     f->deg -= cnt;
 }
 
-int poly_isequal(poly_t f, poly_t g)
+int poly_isequal(c_poly_t f, c_poly_t g)
 {
     if (f->deg != g->deg)
         return 0;
 
-    return !memcmp(f->coef, g->coef, (f->deg + 1) * sizeof(f->coef));
+    for (uint8_t i = 0; i <= f->deg; i++)
+        if (f->coef[i] != g->coef[i])
+            return 0;
+    return 1;
+
+    // return !memcmp(f->coef, g->coef, (f->deg + 1) * sizeof(f->coef));
+}
+
+int poly_iszero(poly_t f)
+{
+    return f->deg == 0 && f->coef[0] == 0;
 }
 
 poly_t poly_neg(poly_t f, uint8_t p)
@@ -169,6 +179,75 @@ poly_t poly_multiply(poly_t f, poly_t g, uint8_t p)
     return res;
 }
 
+poly_t poly_mod(poly_t f, poly_t g, uint8_t p)
+{
+    poly_t res;
+    uint8_t m, n;
+    uint8_t gn_inv;
+
+    res = poly_copy(f);
+
+    if (res->deg < g->deg)
+        return res;
+
+    m = f->deg;
+    n = g->deg;
+    gn_inv = p_inv(g->coef[n], p); /* inverse for n-th g coefficient */
+
+    /* i, j are offsets from res leading (m-th) coefficient */
+    for (uint8_t i = 0; i <= m - n; i ++) 
+    {
+        uint8_t q = (res->coef[m - i] * gn_inv) % p;
+        for (uint8_t j = i; j <= n + i; j++)
+        {
+            uint8_t d = p_diff(res->coef[m - j], (q * g->coef[n - j + i]) % p, p);
+            res->coef[m - j] = d;
+
+            // printf("\n%u, %u) q:%u  d:%u\n", i, j, q, d);
+            // poly_print(res);
+        }
+    }
+
+    poly_normalize(res);
+
+    return res;
+}
+
+uint8_t p_neg(uint8_t x, uint8_t p)
+{
+    return (p - x) % p;
+}
+
+uint8_t p_sum(uint8_t a, uint8_t b, uint8_t p)
+{
+    return (a + b) % p;
+}
+
+uint8_t p_diff(uint8_t a, uint8_t b, uint8_t p)
+{
+    return (a + p_neg(b, p)) % p;
+}
+
+uint8_t p_inv(uint8_t x, uint8_t p)
+{
+    return fastpow(x, p - 2) % p;
+}
+
+uint64_t fastpow(uint8_t x, uint8_t n)
+{
+    uint64_t res = 1;
+    uint64_t mul = x;
+
+    while (n > 0)
+    {
+        if (n % 2 != 0)
+            res *= mul;
+        mul *= mul;
+        n >>= 1;
+    }
+
+    return res;
+}
 
 /* ::remove */
 void poly_print(poly_t f)
