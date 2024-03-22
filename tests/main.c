@@ -159,6 +159,86 @@ MU_TEST_SUITE(suite_poly_mul)
     MU_RUN_TEST(test_poly_mul);
 }
 
+MU_TEST(test_inv)
+{
+    mu_check(p_inv(3, 5) == 2);
+    mu_check(p_inv(2, 5) == 3);
+    mu_check(p_inv(4, 7) == 2);
+}
+
+MU_TEST(test_poly_mod2)
+{
+    uint8_t a[] = {1, 1};
+    uint8_t b[] = {1, 1, 1};
+    poly_t f = poly_init_from_array(a, 2);
+    poly_t g = poly_init_from_array(b, 3);
+    poly_t res = poly_mod(f, g, 2);
+    poly_t act = poly_init_from_array(a, 2);
+
+    mu_check(poly_isequal(act, res));
+
+    poly_free(f);
+    poly_free(g);
+    poly_free(res);
+    poly_free(act);
+}
+
+MU_TEST(test_poly_mod_self)
+{
+    uint8_t a[] = {1, 1};
+    poly_t f = poly_init_from_array(a, 2);
+    poly_t res = poly_mod(f, f, 2);
+
+    mu_check(poly_iszero(res));
+
+    poly_free(f);
+    poly_free(res);
+}
+
+MU_TEST(test_poly_mod5_remain)
+{
+    uint8_t a[] = {2, 3, 3};
+    uint8_t b[] = {3, 2};
+    uint8_t ac[] = {3};
+    poly_t f = poly_init_from_array(a, 3);
+    poly_t g = poly_init_from_array(b, 2);
+    poly_t res = poly_mod(f, g, 5);
+    poly_t act = poly_init_from_array(ac, 1);
+
+    mu_check(poly_isequal(act, res));
+
+    poly_free(f);
+    poly_free(g);
+    poly_free(res);
+    poly_free(act);
+}
+
+MU_TEST(test_poly_mod7_remain)
+{
+    uint8_t a[] = {3, 0, 1, 0, 2, 4};
+    uint8_t b[] = {1, 0, 1, 3};
+    uint8_t ac[] = {1, 6};
+    poly_t f = poly_init_from_array(a, 6);
+    poly_t g = poly_init_from_array(b, 4);
+    poly_t res = poly_mod(f, g, 7);
+    poly_t act = poly_init_from_array(ac, 2);
+
+    mu_check(poly_isequal(act, res));
+
+    poly_free(f);
+    poly_free(g);
+    poly_free(res);
+    poly_free(act);
+}
+
+MU_TEST_SUITE(suite_poly_mod)
+{
+    MU_RUN_TEST(test_poly_mod2);
+    MU_RUN_TEST(test_poly_mod_self);
+    MU_RUN_TEST(test_poly_mod5_remain);
+    MU_RUN_TEST(test_poly_mod7_remain);
+}
+
 int main()
 {
     MU_RUN_SUITE(suite_init);
@@ -168,6 +248,8 @@ int main()
     MU_RUN_SUITE(suite_poly_neg);
     MU_RUN_SUITE(suite_poly_sub);
     MU_RUN_SUITE(suite_poly_mul);
+    MU_RUN_TEST(test_inv);
+    MU_RUN_SUITE(suite_poly_mod);
 
     MU_REPORT();
 
