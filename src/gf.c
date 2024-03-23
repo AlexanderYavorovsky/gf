@@ -24,6 +24,28 @@ gf_t gf_init(uint8_t p, poly_t poly)
     return ff;
 }
 
+int gf_isequal(gf_t ff1, gf_t ff2)
+{
+    return ff1->p == ff2->p && poly_isequal(ff1->poly, ff2->poly);
+}
+
+ gf_elem_t gf_sum(gf_elem_t a, gf_elem_t b)
+ {
+    gf_elem_t res;
+
+    if (!gf_isequal(a->ff, b->ff))
+        return NULL;
+
+    res = malloc(sizeof(*res));
+    if (res == NULL) 
+        return NULL;
+    
+    res->poly = poly_sum(a->poly, b->poly, a->ff->p);
+    res->ff = a->ff;
+
+    return res;
+ }
+
 void gf_elem_free(gf_elem_t el)
 {
     if (el == NULL)

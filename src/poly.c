@@ -207,7 +207,7 @@ poly_t poly_mod(poly_t f, poly_t g, uint8_t p)
             // poly_print(res);
         }
     }
-
+    
     poly_normalize(res);
 
     return res;
