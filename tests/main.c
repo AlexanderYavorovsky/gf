@@ -1,6 +1,7 @@
 #include "minunit.h"
 
 #include "poly.h"
+#include "gf.h"
 
 MU_TEST(test_init)
 {
@@ -239,6 +240,61 @@ MU_TEST_SUITE(suite_poly_mod)
     MU_RUN_TEST(test_poly_mod7_remain);
 }
 
+MU_TEST(test_gf_init)
+{
+    uint8_t a[] = {1, 1, 1};
+    poly_t f = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, f);
+
+    mu_check(ff->p == 2);
+    mu_check(poly_isequal(f, ff->poly));
+
+    poly_free(f);
+    gf_free(ff);
+
+}
+
+MU_TEST(test_el_init)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t ac[] = {0};
+    poly_t f = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, f);
+    gf_elem_t el = gf_elem_from_array(a, 3, ff);
+    gf_t act = poly_init_from_array(ac, 1);
+    
+    mu_check(poly_isequal(act, el->poly));
+
+    poly_free(f);
+    gf_free(ff);
+    gf_elem_free(el);
+    poly_free(act);
+}
+
+MU_TEST(test_el_init_remain)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t b[] = {2, 1, 4, 3};
+    uint8_t ac[] = {1, 1};
+    poly_t f = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, f);
+    gf_elem_t el = gf_elem_from_array(b, 4, ff);
+    gf_t act = poly_init_from_array(ac, 2);
+    
+    mu_check(poly_isequal(act, el->poly));
+
+    poly_free(f);
+    gf_free(ff);
+    gf_elem_free(el);
+    poly_free(act);
+}
+
+MU_TEST_SUITE(suite_el_init)
+{
+    MU_RUN_TEST(test_el_init);
+    MU_RUN_TEST(test_el_init_remain);
+}
+
 int main()
 {
     MU_RUN_SUITE(suite_init);
@@ -250,6 +306,8 @@ int main()
     MU_RUN_SUITE(suite_poly_mul);
     MU_RUN_TEST(test_inv);
     MU_RUN_SUITE(suite_poly_mod);
+    MU_RUN_TEST(test_gf_init);
+    MU_RUN_SUITE(suite_el_init);
 
     MU_REPORT();
 
