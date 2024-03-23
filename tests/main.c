@@ -295,6 +295,52 @@ MU_TEST_SUITE(suite_el_init)
     MU_RUN_TEST(test_el_init_remain);
 }
 
+MU_TEST(test_gf_isequal_self)
+{
+    uint8_t a[] = {1, 1, 1};
+    poly_t f = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, f);
+
+    mu_check(gf_isequal(ff, ff));
+
+    poly_free(f);
+    gf_free(ff);
+}
+
+MU_TEST_SUITE(suite_gf_isequal)
+{
+    MU_RUN_TEST(test_gf_isequal_self);
+}
+
+MU_TEST(test_gf_sum)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t b[] = {2, 1, 4, 3};
+    uint8_t c[] = {1, 0, 1};
+    uint8_t ac[] = {1};
+    
+    poly_t r = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, r);
+    gf_elem_t el1 = gf_elem_from_array(b, 4, ff);
+    gf_elem_t el2 = gf_elem_from_array(c, 3, ff);
+    gf_elem_t res = gf_sum(el1, el2);
+    poly_t act = poly_init_from_array(ac, 1);
+
+    mu_check(poly_isequal(act, res->poly));
+
+    poly_free(r);
+    gf_free(ff);
+    gf_elem_free(el1);
+    gf_elem_free(el2);
+    gf_elem_free(res);
+    poly_free(act);
+}
+
+MU_TEST_SUITE(suite_gf_sum)
+{
+    MU_RUN_TEST(test_gf_sum);
+}
+
 int main()
 {
     MU_RUN_SUITE(suite_init);
@@ -308,6 +354,8 @@ int main()
     MU_RUN_SUITE(suite_poly_mod);
     MU_RUN_TEST(test_gf_init);
     MU_RUN_SUITE(suite_el_init);
+    MU_RUN_SUITE(suite_gf_isequal);
+    MU_RUN_SUITE(suite_gf_sum);
 
     MU_REPORT();
 
