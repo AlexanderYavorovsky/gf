@@ -261,7 +261,7 @@ MU_TEST(test_el_init)
     poly_t f = poly_init_from_array(a, 3);
     gf_t ff = gf_init(2, f);
     gf_elem_t el = gf_elem_from_array(a, 3, ff);
-    gf_t act = poly_init_from_array(ac, 1);
+    poly_t act = poly_init_from_array(ac, 1);
     
     mu_check(poly_isequal(act, el->poly));
 
@@ -279,7 +279,7 @@ MU_TEST(test_el_init_remain)
     poly_t f = poly_init_from_array(a, 3);
     gf_t ff = gf_init(2, f);
     gf_elem_t el = gf_elem_from_array(b, 4, ff);
-    gf_t act = poly_init_from_array(ac, 2);
+    poly_t act = poly_init_from_array(ac, 2);
     
     mu_check(poly_isequal(act, el->poly));
 
