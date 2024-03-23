@@ -198,6 +198,7 @@ poly_t poly_mod(poly_t f, poly_t g, uint8_t p)
     for (uint8_t i = 0; i <= m - n; i ++) 
     {
         uint8_t q = (res->coef[m - i] * gn_inv) % p;
+        if (q == 0) continue;
         for (uint8_t j = i; j <= n + i; j++)
         {
             uint8_t d = p_diff(res->coef[m - j], (q * g->coef[n - j + i]) % p, p);
