@@ -29,6 +29,35 @@ int gf_isequal(gf_t ff1, gf_t ff2)
     return ff1->p == ff2->p && poly_isequal(ff1->poly, ff2->poly);
 }
 
+gf_elem_t gf_get_zero(gf_t ff)
+{
+    gf_elem_t zero;
+
+    zero = malloc(sizeof(*zero));
+    if (zero == NULL) return NULL;
+
+    zero->poly = malloc(sizeof(*zero->poly));
+    if (zero->poly == NULL) return zero;
+
+    zero->poly->deg = 0;
+    zero->poly->coef = calloc(ff->poly->deg + 1, sizeof(*zero->poly->coef));
+    zero->ff = ff;
+
+    return zero;
+}
+
+gf_elem_t gf_get_identity(gf_t ff)
+{
+    gf_elem_t id;
+
+    id = gf_get_zero(ff);
+    if (id == NULL) return NULL;
+
+    id->poly->coef[0] = 1;
+
+    return id;
+}
+
  gf_elem_t gf_sum(gf_elem_t a, gf_elem_t b)
  {
     gf_elem_t res;
@@ -40,11 +69,43 @@ int gf_isequal(gf_t ff1, gf_t ff2)
     if (res == NULL) 
         return NULL;
     
-    res->poly = poly_sum(a->poly, b->poly, a->ff->p);
     res->ff = a->ff;
+    res->poly = poly_sum(a->poly, b->poly, res->ff->p);
 
     return res;
  }
+
+gf_elem_t gf_subtract(gf_elem_t a, gf_elem_t b)
+{
+    gf_elem_t res;
+    
+    if (!gf_isequal(a->ff, b->ff))
+        return NULL;
+
+    res = malloc(sizeof(*res));
+    if (res == NULL) return NULL;
+
+    res->ff = a->ff;
+    res->poly = poly_subtract(a->poly, b->poly, res->ff->p);
+
+    return res;
+}
+
+gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
+{
+    gf_elem_t res;
+
+    if (!gf_isequal(a->ff, b->ff))
+        return NULL;
+
+    res = malloc(sizeof(*res));
+    if (res == NULL) return NULL;
+
+    res->ff = a->ff;
+    res->poly = poly_multiply(a->poly, b->poly, res->ff->p);
+
+    return res;
+}
 
 void gf_elem_free(gf_elem_t el)
 {

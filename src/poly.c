@@ -180,6 +180,9 @@ poly_t poly_mod(poly_t f, poly_t g, uint8_t p)
     uint8_t m, n;
     uint8_t gn_inv;
 
+    if (poly_iszero(g))
+        return NULL;
+
     res = poly_copy(f);
 
     if (res->deg < g->deg)
