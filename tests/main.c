@@ -312,6 +312,38 @@ MU_TEST_SUITE(suite_gf_isequal)
     MU_RUN_TEST(test_gf_isequal_self);
 }
 
+MU_TEST(test_gf_get_zero)
+{
+    uint8_t a[] = {1, 1, 1};
+    poly_t r = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, r);
+    gf_elem_t zero = gf_get_zero(ff);
+
+    mu_check(zero->poly->deg == 0);
+
+    for (uint8_t i = 0; i <= zero->poly->deg; i++)
+        mu_check(zero->poly->coef[i] == 0);
+
+    poly_free(r);
+    gf_free(ff);
+    gf_elem_free(zero);
+}
+
+MU_TEST(test_gf_get_identity)
+{
+    uint8_t a[] = {1, 1, 1};
+    poly_t r = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, r);
+    gf_elem_t id = gf_get_identity(ff);
+
+    mu_check(id->poly->deg == 0);
+    mu_check(id->poly->coef[0] == 1);
+
+    poly_free(r);
+    gf_free(ff);
+    gf_elem_free(id);
+}
+
 MU_TEST(test_gf_sum)
 {
     uint8_t a[] = {1, 1, 1};
@@ -341,6 +373,64 @@ MU_TEST_SUITE(suite_gf_sum)
     MU_RUN_TEST(test_gf_sum);
 }
 
+MU_TEST(test_gf_subtract)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t b[] = {2, 1, 4, 3};
+    uint8_t c[] = {1, 0, 1};
+    uint8_t ac[] = {1};
+    
+    poly_t r = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, r);
+    gf_elem_t el1 = gf_elem_from_array(b, 4, ff);
+    gf_elem_t el2 = gf_elem_from_array(c, 3, ff);
+    gf_elem_t res = gf_subtract(el1, el2);
+    poly_t act = poly_init_from_array(ac, 1);
+
+    mu_check(poly_isequal(act, res->poly));
+
+    poly_free(r);
+    gf_free(ff);
+    gf_elem_free(el1);
+    gf_elem_free(el2);
+    gf_elem_free(res);
+    poly_free(act);
+}
+
+MU_TEST_SUITE(suite_gf_subtract)
+{
+    MU_RUN_TEST(test_gf_subtract);
+}
+
+MU_TEST(test_gf_multiply)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t b[] = {2, 1, 4, 3};
+    uint8_t c[] = {1, 0, 1};
+    uint8_t ac[] = {0, 1, 1};
+    
+    poly_t r = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, r);
+    gf_elem_t el1 = gf_elem_from_array(b, 4, ff);
+    gf_elem_t el2 = gf_elem_from_array(c, 3, ff);
+    gf_elem_t res = gf_multiply(el1, el2);
+    poly_t act = poly_init_from_array(ac, 3);
+
+    mu_check(poly_isequal(act, res->poly));
+
+    poly_free(r);
+    gf_free(ff);
+    gf_elem_free(el1);
+    gf_elem_free(el2);
+    gf_elem_free(res);
+    poly_free(act);
+}
+
+MU_TEST_SUITE(suite_gf_multiply)
+{
+    MU_RUN_TEST(test_gf_multiply);
+}
+
 int main()
 {
     MU_RUN_SUITE(suite_init);
@@ -355,7 +445,11 @@ int main()
     MU_RUN_TEST(test_gf_init);
     MU_RUN_SUITE(suite_el_init);
     MU_RUN_SUITE(suite_gf_isequal);
+    MU_RUN_TEST(test_gf_get_zero);
+    MU_RUN_TEST(test_gf_get_identity);
     MU_RUN_SUITE(suite_gf_sum);
+    MU_RUN_SUITE(suite_gf_subtract);
+    MU_RUN_SUITE(suite_gf_multiply);
 
     MU_REPORT();
 
