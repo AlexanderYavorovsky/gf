@@ -24,7 +24,7 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
     if (f == NULL) 
         return NULL;
 
-    f->coef = malloc(sizeof(f->coef) * n);
+    f->coef = malloc(sizeof(*f->coef) * n);
     if (f->coef == NULL)
     {
         poly_free(f);
@@ -33,7 +33,7 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
     
     f->deg = n - 1;
     
-    memcpy(f->coef, arr, sizeof(f->coef) * n);
+    memcpy(f->coef, arr, sizeof(*f->coef) * n);
     
     return f;
 }
@@ -51,11 +51,11 @@ poly_t poly_copy(poly_t f)
 
     g->deg = f->deg;
 
-    g->coef = malloc(sizeof(f->coef) * (f->deg + 1));
+    g->coef = malloc(sizeof(*f->coef) * (f->deg + 1));
     if (g->coef == NULL) 
         return g;
 
-    memcpy(g->coef, f->coef, sizeof(f->coef) * (f->deg + 1));
+    memcpy(g->coef, f->coef, (f->deg + 1) * sizeof(*f->coef));
 
     return g;
 }
@@ -78,12 +78,7 @@ int poly_isequal(c_poly_t f, c_poly_t g)
     if (f->deg != g->deg)
         return 0;
 
-    for (uint8_t i = 0; i <= f->deg; i++)
-        if (f->coef[i] != g->coef[i])
-            return 0;
-    return 1;
-
-    // return !memcmp(f->coef, g->coef, (f->deg + 1) * sizeof(f->coef));
+    return memcmp(f->coef, g->coef, f->deg + 1) == 0;
 }
 
 int poly_iszero(poly_t f)
