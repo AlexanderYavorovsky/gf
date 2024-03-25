@@ -431,6 +431,25 @@ MU_TEST_SUITE(suite_gf_multiply)
     MU_RUN_TEST(test_gf_multiply);
 }
 
+MU_TEST(test_poly_fastpow)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t b[] = {1, 0, 1};
+    uint8_t ac[] = {1, 1};
+    
+    poly_t r = poly_init_from_array(a, 3);
+    poly_t x = poly_init_from_array(b, 3);
+    poly_t res = poly_fastpow(x, 2, 2, r);
+    poly_t act = poly_init_from_array(ac, 2);
+
+    mu_check(poly_isequal(act, res));
+
+    poly_free(r);
+    poly_free(x);
+    poly_free(res);
+    poly_free(act);
+}
+
 int main()
 {
     MU_RUN_SUITE(suite_init);
@@ -450,6 +469,7 @@ int main()
     MU_RUN_SUITE(suite_gf_sum);
     MU_RUN_SUITE(suite_gf_subtract);
     MU_RUN_SUITE(suite_gf_multiply);
+    MU_RUN_TEST(test_poly_fastpow);
 
     MU_REPORT();
 
