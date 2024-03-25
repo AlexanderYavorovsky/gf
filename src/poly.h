@@ -42,7 +42,16 @@ uint8_t p_diff(uint8_t a, uint8_t b, uint8_t p);
 
 uint8_t p_inv(uint8_t x, uint8_t p);
 
+
+poly_t poly_get_zero(uint8_t len);
+
+poly_t poly_get_identity(uint8_t len);
+
+
 uint64_t fastpow(uint8_t x, uint8_t n);
+
+poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir);
+
 
 
 /* ::remove */

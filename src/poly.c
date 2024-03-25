@@ -231,6 +231,28 @@ uint8_t p_inv(uint8_t x, uint8_t p)
     return fastpow(x, p - 2) % p;
 }
 
+poly_t poly_get_zero(uint8_t len)
+{
+    poly_t zero;
+
+    zero = malloc(sizeof(*zero));
+    if (zero == NULL) return NULL;
+
+    zero->coef = calloc(len, sizeof(*zero->coef));
+    zero->deg = 0;
+
+    return zero;
+}
+
+poly_t poly_get_identity(uint8_t len)
+{
+    poly_t id = poly_get_zero(len);
+    
+    id->coef[0] = 1;
+
+    return id;
+}
+
 uint64_t fastpow(uint8_t x, uint8_t n)
 {
     uint64_t res = 1;
@@ -238,11 +260,48 @@ uint64_t fastpow(uint8_t x, uint8_t n)
 
     while (n > 0)
     {
-        if (n % 2 != 0)
+        if (n % 2)
             res *= mul;
         mul *= mul;
         n >>= 1;
     }
+
+    return res;
+}
+
+static void poly_swap(poly_t *a, poly_t *b)
+{
+    poly_t tmp = *a;
+
+    *a = *b;
+    *b = tmp;
+}
+
+poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir)
+{
+    poly_t res = poly_get_identity(ir->deg); /* :::? */
+    poly_t mul = poly_copy(x);
+
+    while (n > 0)
+    {
+        if (n % 2)
+        {
+            poly_t tmp = poly_multiply(res, mul, p);
+            poly_swap(&res, &tmp);
+            poly_free(tmp);
+            tmp = poly_mod(res, ir, p);
+            poly_swap(&res, &tmp);
+            poly_free(tmp);
+        }
+
+        mul = poly_multiply(mul, mul, p);
+        mul = poly_mod(mul, ir, p);
+        n >>= 1;
+    }
+    
+    poly_free(mul);
+
+    poly_normalize(res);
 
     return res;
 }

@@ -36,11 +36,7 @@ gf_elem_t gf_get_zero(gf_t ff)
     zero = malloc(sizeof(*zero));
     if (zero == NULL) return NULL;
 
-    zero->poly = malloc(sizeof(*zero->poly));
-    if (zero->poly == NULL) return zero;
-
-    zero->poly->deg = 0;
-    zero->poly->coef = calloc(ff->poly->deg + 1, sizeof(*zero->poly->coef));
+    zero->poly = poly_get_zero(ff->poly->deg + 1);
     zero->ff = ff;
 
     return zero;
@@ -50,10 +46,11 @@ gf_elem_t gf_get_identity(gf_t ff)
 {
     gf_elem_t id;
 
-    id = gf_get_zero(ff);
+    id = malloc(sizeof(*id));
     if (id == NULL) return NULL;
 
-    id->poly->coef[0] = 1;
+    id->poly = poly_get_identity(ff->poly->deg + 1);
+    id->ff = ff;
 
     return id;
 }
