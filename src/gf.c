@@ -130,12 +130,11 @@ gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
     res = malloc(sizeof(*res));
     if (res == NULL) return NULL;
 
-    if ((tmp = malloc(sizeof(*tmp))) == NULL)
-        return NULL;
-
     res->ff = a->ff;
     tmp = poly_multiply(a->poly, b->poly, res->ff->p);
     res->poly = poly_mod(tmp, a->ff->poly, res->ff->p);
+
+    poly_free(tmp);
 
     return res;
 }

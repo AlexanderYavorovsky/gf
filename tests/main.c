@@ -467,6 +467,7 @@ MU_TEST(test_gf_neg)
     gf_free(ff);
     gf_elem_free(x);
     gf_elem_free(neg);
+    gf_elem_free(res);
     gf_elem_free(zero);
 }
 
@@ -486,6 +487,7 @@ MU_TEST(test_gf_inv)
     poly_free(r);
     gf_free(ff);
     gf_elem_free(x);
+    gf_elem_free(inv);
     gf_elem_free(id);
     gf_elem_free(prod);
 }
