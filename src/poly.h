@@ -25,13 +25,20 @@ int poly_iszero(poly_t f);
 
 poly_t poly_neg(poly_t f, uint8_t p);
 
-poly_t poly_sum(poly_t f, poly_t g, uint8_t p);
+poly_t poly_sum(poly_t a, poly_t b, uint8_t p);
 
-poly_t poly_subtract(poly_t f, poly_t g, uint8_t p);
+poly_t poly_subtract(poly_t a, poly_t b, uint8_t p);
 
-poly_t poly_multiply(poly_t f, poly_t g, uint8_t p);
+poly_t poly_multiply(poly_t a, poly_t b, uint8_t p);
 
-poly_t poly_mod(poly_t f, poly_t g, uint8_t p);
+poly_t poly_mod(poly_t a, poly_t b, uint8_t p);
+
+
+/* These "short" funcitons write result of 
+   corresponding functions into a. 
+   "v" stands for void return. */
+void poly_vmul(poly_t *a, poly_t b, uint8_t p);
+void poly_vmod(poly_t *a, poly_t b, uint8_t p);
 
 
 uint8_t p_neg(uint8_t x, uint8_t p);
@@ -51,8 +58,6 @@ poly_t poly_get_identity(uint8_t len);
 uint64_t fastpow(uint8_t x, uint8_t n);
 
 poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir);
-
-
 
 /* ::remove */
 void poly_print(poly_t f);
