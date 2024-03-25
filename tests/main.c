@@ -407,14 +407,14 @@ MU_TEST(test_gf_multiply)
     uint8_t a[] = {1, 1, 1};
     uint8_t b[] = {2, 1, 4, 3};
     uint8_t c[] = {1, 0, 1};
-    uint8_t ac[] = {0, 1, 1};
+    uint8_t ac[] = {1};
     
     poly_t r = poly_init_from_array(a, 3);
     gf_t ff = gf_init(2, r);
     gf_elem_t el1 = gf_elem_from_array(b, 4, ff);
     gf_elem_t el2 = gf_elem_from_array(c, 3, ff);
     gf_elem_t res = gf_multiply(el1, el2);
-    poly_t act = poly_init_from_array(ac, 3);
+    poly_t act = poly_init_from_array(ac, 1);
 
     mu_check(poly_isequal(act, res->poly));
 
@@ -450,24 +450,44 @@ MU_TEST(test_poly_fastpow)
     poly_free(act);
 }
 
-MU_TEST(test_gf_inv)
+MU_TEST(test_gf_neg)
 {
     uint8_t a[] = {1, 1, 1};
     uint8_t b[] = {1, 0, 1};
-    uint8_t ac[] = {1, 1};
     poly_t r = poly_init_from_array(a, 3);
     gf_t ff = gf_init(2, r);
     gf_elem_t x = gf_elem_from_array(b, 3, ff);
-    gf_elem_t inv = gf_inv(x);
-    poly_t act = poly_init_from_array(ac, 2);
+    gf_elem_t neg = gf_neg(x);
+    gf_elem_t res = gf_sum(x, neg);
+    gf_elem_t zero = gf_get_zero(ff);
 
-    mu_check(poly_isequal(inv->poly, act));
+    mu_check(poly_isequal(res->poly, zero->poly));
 
     poly_free(r);
     gf_free(ff);
     gf_elem_free(x);
-    gf_elem_free(inv);
-    poly_free(act);
+    gf_elem_free(neg);
+    gf_elem_free(zero);
+}
+
+MU_TEST(test_gf_inv)
+{
+    uint8_t a[] = {1, 1, 1};
+    uint8_t b[] = {1, 0, 1};
+    poly_t r = poly_init_from_array(a, 3);
+    gf_t ff = gf_init(2, r);
+    gf_elem_t x = gf_elem_from_array(b, 3, ff);
+    gf_elem_t inv = gf_inv(x);
+    gf_elem_t id = gf_get_identity(ff);
+    gf_elem_t prod = gf_multiply(x, inv);
+
+    mu_check(poly_isequal(id->poly, prod->poly));
+
+    poly_free(r);
+    gf_free(ff);
+    gf_elem_free(x);
+    gf_elem_free(id);
+    gf_elem_free(prod);
 }
 
 MU_TEST(test_gf_div)
@@ -475,13 +495,13 @@ MU_TEST(test_gf_div)
     uint8_t a[] = {1, 1, 1};
     uint8_t b[] = {1, 0, 1, 1};
     uint8_t c[] = {0, 0, 1};
-    uint8_t ac[] = {0, 1, 1};
+    uint8_t ac[] = {1};
     poly_t r = poly_init_from_array(a, 3);
     gf_t ff = gf_init(2, r);
     gf_elem_t el1 = gf_elem_from_array(b, 4, ff);
     gf_elem_t el2 = gf_elem_from_array(c, 3, ff);
     gf_elem_t res = gf_div(el1, el2);
-    poly_t act = poly_init_from_array(ac, 3);
+    poly_t act = poly_init_from_array(ac, 1);
 
     mu_check(poly_isequal(res->poly, act));
 
@@ -520,6 +540,7 @@ int main()
     MU_RUN_TEST(test_poly_fastpow);
     MU_RUN_TEST(test_gf_inv);
     MU_RUN_SUITE(suite_gf_div);
+    MU_RUN_TEST(test_gf_neg);
 
     MU_REPORT();
 
