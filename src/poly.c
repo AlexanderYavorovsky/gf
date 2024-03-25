@@ -282,11 +282,13 @@ poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir)
     poly_t res = poly_get_identity(ir->deg); /* :::? */
     poly_t mul = poly_copy(x);
 
+
+    poly_t tmp;
     while (n > 0)
     {
         if (n % 2)
         {
-            poly_t tmp = poly_multiply(res, mul, p);
+            tmp = poly_multiply(res, mul, p);
             poly_swap(&res, &tmp);
             poly_free(tmp);
             tmp = poly_mod(res, ir, p);
@@ -294,8 +296,12 @@ poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir)
             poly_free(tmp);
         }
 
-        mul = poly_multiply(mul, mul, p);
-        mul = poly_mod(mul, ir, p);
+        tmp = poly_multiply(mul, mul, p);
+        poly_swap(&mul, &tmp);
+        poly_free(tmp);
+        tmp = poly_mod(mul, ir, p);
+        poly_swap(&mul, &tmp);
+        poly_free(tmp);
         n >>= 1;
     }
     
