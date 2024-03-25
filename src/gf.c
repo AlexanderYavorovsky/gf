@@ -55,6 +55,21 @@ gf_elem_t gf_get_identity(gf_t ff)
     return id;
 }
 
+gf_elem_t gf_inv(gf_elem_t x)
+{
+    gf_elem_t inv;
+    uint64_t pow;
+
+    if ((inv = malloc(sizeof(*inv))) == NULL)
+        return NULL;
+    
+    inv->ff = x->ff;
+    pow = fastpow(x->ff->p, x->ff->poly->deg) - 2;
+    inv->poly = poly_fastpow(x->poly, pow, x->ff->p, x->ff->poly);
+
+    return inv;
+}
+
  gf_elem_t gf_sum(gf_elem_t a, gf_elem_t b)
  {
     gf_elem_t res;
@@ -100,6 +115,21 @@ gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
 
     res->ff = a->ff;
     res->poly = poly_multiply(a->poly, b->poly, res->ff->p);
+
+    return res;
+}
+
+gf_elem_t gf_div(gf_elem_t a, gf_elem_t b)
+{
+    gf_elem_t res, b_inv;
+
+    if (!gf_isequal(a->ff, b->ff) || poly_iszero(b->poly))
+        return NULL;
+    
+    b_inv = gf_inv(b);
+    res = gf_multiply(a, b_inv);
+
+    gf_elem_free(b_inv);
 
     return res;
 }
