@@ -55,10 +55,26 @@ gf_elem_t gf_get_identity(gf_t ff)
     return id;
 }
 
+gf_elem_t gf_neg(gf_elem_t x)
+{
+    gf_elem_t neg;
+
+    if ((neg = malloc(sizeof(*neg))) == NULL)
+        return NULL;
+
+    neg->ff = x->ff;
+    neg->poly = poly_neg(x->poly, x->ff->p);
+
+    return neg;
+}
+
 gf_elem_t gf_inv(gf_elem_t x)
 {
     gf_elem_t inv;
     uint64_t pow;
+
+    if (poly_iszero(x->poly)) 
+        return NULL;
 
     if ((inv = malloc(sizeof(*inv))) == NULL)
         return NULL;
@@ -106,6 +122,7 @@ gf_elem_t gf_subtract(gf_elem_t a, gf_elem_t b)
 gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
 {
     gf_elem_t res;
+    poly_t tmp;
 
     if (!gf_isequal(a->ff, b->ff))
         return NULL;
@@ -113,8 +130,12 @@ gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
     res = malloc(sizeof(*res));
     if (res == NULL) return NULL;
 
+    if ((tmp = malloc(sizeof(*tmp))) == NULL)
+        return NULL;
+
     res->ff = a->ff;
-    res->poly = poly_multiply(a->poly, b->poly, res->ff->p);
+    tmp = poly_multiply(a->poly, b->poly, res->ff->p);
+    res->poly = poly_mod(tmp, a->ff->poly, res->ff->p);
 
     return res;
 }

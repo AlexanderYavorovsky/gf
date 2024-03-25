@@ -29,6 +29,8 @@ gf_elem_t gf_get_zero(gf_t ff);
 
 gf_elem_t gf_get_identity(gf_t ff);
 
+gf_elem_t gf_neg(gf_elem_t x);
+
 gf_elem_t gf_inv(gf_elem_t x);
 
 
