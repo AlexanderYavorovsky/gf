@@ -520,6 +520,78 @@ MU_TEST_SUITE(suite_gf_div)
     MU_RUN_TEST(test_gf_div);
 }
 
+MU_TEST(test_uint8_to_el)
+{
+    uint8_t act[] = {0, 0, 0, 1};
+    gf_elem_t x = uint8_to_gf_elem(8);
+
+    mu_check(!memcmp(act, x->poly->coef, x->poly->deg + 1));
+
+    gf_elem_free(x);
+}
+
+MU_TEST(test_el_uint8)
+{
+    uint8_t a[] = {1, 0, 1, 1};
+    gf_elem_t x = gf_elem_from_array(a, 4, gf2_8);
+
+    mu_check(gf_elem_to_uint8(x) == 13);
+
+    gf_elem_free(x);
+}
+
+MU_TEST(test_uint16_to_el)
+{
+    uint8_t act[] = {1, 1, 0, 0, 0, 0, 0, 0, 0, 1};
+    gf_elem_t x = uint16_to_gf_elem(515);
+
+    mu_check(!memcmp(act, x->poly->coef, x->poly->deg + 1));
+
+    gf_elem_free(x);
+}
+
+MU_TEST(test_el_uint16)
+{
+    uint8_t a[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    gf_elem_t x = gf_elem_from_array(a, 10, gf2_16);
+
+    mu_check(gf_elem_to_uint16(x) == 1023);
+
+    gf_elem_free(x);
+}
+
+MU_TEST(test_uint32_to_el)
+{
+    uint8_t act[] = {0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1};
+    gf_elem_t x = uint32_to_gf_elem(70432);
+
+    mu_check(!memcmp(act, x->poly->coef, x->poly->deg + 1));
+
+    gf_elem_free(x);
+}
+
+MU_TEST(test_el_uint32)
+{
+    uint8_t a[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1};
+    gf_elem_t x = gf_elem_from_array(a, 17, gf2_32);
+
+    mu_check(gf_elem_to_uint32(x) == 131071);
+
+    gf_elem_free(x);
+}
+
+
+MU_TEST_SUITE(suite_conversion)
+{
+    MU_RUN_TEST(test_uint8_to_el);
+    MU_RUN_TEST(test_el_uint8);
+    MU_RUN_TEST(test_uint16_to_el);
+    MU_RUN_TEST(test_el_uint16);
+    MU_RUN_TEST(test_uint32_to_el);
+    MU_RUN_TEST(test_el_uint32);
+}
+
 int main()
 {
     MU_RUN_SUITE(suite_init);
@@ -543,6 +615,7 @@ int main()
     MU_RUN_TEST(test_gf_inv);
     MU_RUN_SUITE(suite_gf_div);
     MU_RUN_TEST(test_gf_neg);
+    MU_RUN_SUITE(suite_conversion);
 
     MU_REPORT();
 
