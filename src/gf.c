@@ -170,9 +170,8 @@ gf_elem_t gf_div(gf_elem_t a, gf_elem_t b)
 
 void gf_elem_free(gf_elem_t el)
 {
-    if (el == NULL)
-        return;
-    poly_free(el->poly);
+    if (el != NULL)
+        poly_free(el->poly);
     free(el);
 }
 

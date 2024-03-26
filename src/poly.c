@@ -6,9 +6,8 @@ static uint8_t mymax(uint8_t a, uint8_t b) { return a >= b ? a : b; }
 
 void poly_free(poly_t f)
 {
-    if (f == NULL)
-        return;
-    free(f->coef);
+    if (f != NULL)
+        free(f->coef);
     free(f);
 }
 
@@ -29,8 +28,8 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
     }
     
     f->deg = n - 1;
-    
     memcpy(f->coef, arr, sizeof(*f->coef) * n);
+    poly_normalize(f);
     
     return f;
 }
@@ -72,10 +71,7 @@ void poly_normalize(poly_t f)
 
 int poly_isequal(c_poly_t f, c_poly_t g)
 {
-    if (f->deg != g->deg)
-        return 0;
-
-    return !memcmp(f->coef, g->coef, f->deg + 1);
+    return f->deg == g->deg && !memcmp(f->coef, g->coef, f->deg + 1);
 }
 
 int poly_iszero(poly_t f)
@@ -137,10 +133,10 @@ poly_t poly_sum(poly_t a, poly_t b, uint8_t p)
 
 poly_t poly_subtract(poly_t a, poly_t b, uint8_t p)
 {
-    poly_t gneg = poly_neg(b, p);
-    poly_t res = poly_sum(a, gneg, p);
+    poly_t b_neg = poly_neg(b, p);
+    poly_t res = poly_sum(a, b_neg, p);
 
-    poly_free(gneg);
+    poly_free(b_neg);
     
     return res;
 }
@@ -170,8 +166,7 @@ poly_t poly_multiply(poly_t a, poly_t b, uint8_t p)
 poly_t poly_mod(poly_t a, poly_t b, uint8_t p)
 {
     poly_t res;
-    uint8_t m, n;
-    uint8_t gn_inv;
+    uint8_t m, n, gn_inv;
 
     if (poly_iszero(b))
         return NULL;
@@ -191,8 +186,8 @@ poly_t poly_mod(poly_t a, poly_t b, uint8_t p)
         uint8_t q = (res->coef[m - i] * gn_inv) % p;
         for (uint8_t j = i; j <= n + i; j++)
         {
-            uint8_t d = p_diff(res->coef[m - j], (q * b->coef[n - j + i]) % p, p);
-            res->coef[m - j] = d;
+            uint8_t subtrahend = (q * b->coef[n - j + i]) % p;
+            res->coef[m - j] = p_diff(res->coef[m - j], subtrahend, p);
         }
     }
     
@@ -251,6 +246,9 @@ poly_t poly_get_identity(uint8_t len)
 {
     poly_t id = poly_get_zero(len);
     
+    if (id == NULL)
+        return NULL;
+        
     id->coef[0] = 1;
 
     return id;
