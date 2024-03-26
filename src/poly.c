@@ -19,12 +19,10 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
     if (n == 0)
         return NULL;
 
-    f = malloc(sizeof(*f));
-    if (f == NULL) 
+    if ((f = malloc(sizeof(*f))) == NULL) 
         return NULL;
 
-    f->coef = malloc(sizeof(*f->coef) * n);
-    if (f->coef == NULL)
+    if ((f->coef = malloc(sizeof(*f->coef) * n)) == NULL)
     {
         poly_free(f);
         return NULL;
@@ -44,8 +42,7 @@ poly_t poly_copy(poly_t f)
     if (f == NULL)
         return NULL;
     
-    g = malloc(sizeof(*g));
-    if (g == NULL)
+    if ((g = malloc(sizeof(*g))) == NULL)
         return NULL;
 
     g->deg = f->deg;
@@ -61,7 +58,8 @@ poly_t poly_copy(poly_t f)
 
 void poly_normalize(poly_t f)
 {
-    uint8_t cnt = 0;
+    uint8_t cnt;
+
     if (f == NULL)
         return;
 
@@ -77,7 +75,7 @@ int poly_isequal(c_poly_t f, c_poly_t g)
     if (f->deg != g->deg)
         return 0;
 
-    return memcmp(f->coef, g->coef, f->deg + 1) == 0;
+    return !memcmp(f->coef, g->coef, f->deg + 1);
 }
 
 int poly_iszero(poly_t f)
@@ -92,8 +90,7 @@ poly_t poly_neg(poly_t f, uint8_t p)
     if (f == NULL) 
         return NULL;
     
-    res = malloc(sizeof(*res));
-    if (res == NULL)
+    if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
 
     res->coef = malloc(f->deg * sizeof(res->coef));
@@ -115,13 +112,11 @@ poly_t poly_sum(poly_t a, poly_t b, uint8_t p)
     poly_t res;
     uint8_t maxdeg;
 
-    res = malloc(sizeof(*res));
-    if (res == NULL)
+    if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
 
     maxdeg = mymax(a->deg, b->deg);
-    res->coef = calloc(maxdeg, sizeof(res->coef));
-    if (res->coef == NULL)
+    if ((res->coef = calloc(maxdeg, sizeof(res->coef))) == NULL)
         return NULL;
 
     res->deg = maxdeg;
@@ -154,8 +149,7 @@ poly_t poly_multiply(poly_t a, poly_t b, uint8_t p)
 {
     poly_t res;
 
-    res = malloc(sizeof(*res));
-    if (res == NULL)
+    if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
     
     res->coef = calloc(a->deg + b->deg + 2, sizeof(res->coef));
@@ -245,8 +239,7 @@ poly_t poly_get_zero(uint8_t len)
 {
     poly_t zero;
 
-    zero = malloc(sizeof(*zero));
-    if (zero == NULL) return NULL;
+    if ((zero = malloc(sizeof(*zero))) == NULL) return NULL;
 
     zero->coef = calloc(len, sizeof(*zero->coef));
     zero->deg = 0;

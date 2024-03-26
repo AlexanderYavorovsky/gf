@@ -32,8 +32,7 @@ gf_t gf_init(uint8_t p, poly_t poly)
 {
     gf_t ff;
 
-    ff = malloc(sizeof(*ff));
-    if (ff == NULL)
+    if ((ff = malloc(sizeof(*ff))) == NULL)
         return NULL;
 
     ff->p = p;
@@ -51,8 +50,7 @@ gf_elem_t gf_get_zero(gf_t ff)
 {
     gf_elem_t zero;
 
-    zero = malloc(sizeof(*zero));
-    if (zero == NULL) return NULL;
+    if ((zero = malloc(sizeof(*zero))) == NULL) return NULL;
 
     zero->poly = poly_get_zero(ff->poly->deg + 1);
     zero->ff = ff;
@@ -64,8 +62,7 @@ gf_elem_t gf_get_identity(gf_t ff)
 {
     gf_elem_t id;
 
-    id = malloc(sizeof(*id));
-    if (id == NULL) return NULL;
+    if ((id = malloc(sizeof(*id))) == NULL) return NULL;
 
     id->poly = poly_get_identity(ff->poly->deg + 1);
     id->ff = ff;
@@ -111,8 +108,7 @@ gf_elem_t gf_inv(gf_elem_t x)
     if (!gf_isequal(a->ff, b->ff))
         return NULL;
 
-    res = malloc(sizeof(*res));
-    if (res == NULL) 
+    if ((res = malloc(sizeof(*res))) == NULL) 
         return NULL;
     
     res->ff = a->ff;
@@ -128,8 +124,8 @@ gf_elem_t gf_subtract(gf_elem_t a, gf_elem_t b)
     if (!gf_isequal(a->ff, b->ff))
         return NULL;
 
-    res = malloc(sizeof(*res));
-    if (res == NULL) return NULL;
+    if ((res = malloc(sizeof(*res))) == NULL)
+        return NULL; 
 
     res->ff = a->ff;
     res->poly = poly_subtract(a->poly, b->poly, res->ff->p);
@@ -145,8 +141,8 @@ gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
     if (!gf_isequal(a->ff, b->ff))
         return NULL;
 
-    res = malloc(sizeof(*res));
-    if (res == NULL) return NULL;
+    if ((res = malloc(sizeof(*res))) == NULL)
+        return NULL;
 
     res->ff = a->ff;
     tmp = poly_multiply(a->poly, b->poly, res->ff->p);
@@ -185,8 +181,7 @@ gf_elem_t gf_elem_from_array(uint8_t *arr, uint8_t n, gf_t ff)
     gf_elem_t el;
     poly_t tmp_poly;
 
-    el = malloc(sizeof(*el));
-    if (el == NULL)
+    if ((el = malloc(sizeof(*el))) == NULL)
         return NULL;
     
     tmp_poly = poly_init_from_array(arr, n);
