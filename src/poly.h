@@ -18,6 +18,8 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n);
 
 poly_t poly_copy(poly_t f);
 
+void poly_normalize(poly_t f);
+
 int poly_isequal(c_poly_t f, c_poly_t g);
 
 int poly_iszero(poly_t f);

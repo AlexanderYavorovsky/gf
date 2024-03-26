@@ -3,6 +3,23 @@
 #include "gf.h"
 #include "poly.h"
 
+uint8_t coef2_8[] = {1, 0, 1, 1, 1, 0, 0, 0, 1};
+struct poly ir2_8 = {.deg = 8, .coef = coef2_8};
+struct gf gf2_8_struct = {.p = 2, .poly = &ir2_8};
+gf_t gf2_8 = &gf2_8_struct;
+
+uint8_t coef2_16[] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1};
+struct poly ir2_16 = {.deg = 16, .coef = coef2_16};
+struct gf gf2_16_struct = {.p = 2, .poly = &ir2_16};
+gf_t gf2_16 = &gf2_16_struct;
+
+uint8_t coef2_32[] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+struct poly ir2_32 = {.deg = 32, .coef = coef2_32};
+struct gf gf2_32_struct = {.p = 2, .poly = &ir2_32};
+gf_t gf2_32 = &gf2_32_struct;
+
+
 void gf_free(gf_t ff)
 {
     if (ff != NULL)
@@ -178,6 +195,38 @@ gf_elem_t gf_elem_from_array(uint8_t *arr, uint8_t n, gf_t ff)
     poly_free(tmp_poly);
 
     return el;
+}
+
+gf_elem_t uint8_to_gf_elem(uint8_t x)
+{
+    gf_elem_t res = gf_get_zero(gf2_8);
+    uint8_t r;
+    uint8_t cnt = 0;
+
+    while (x > 0)
+    {
+        res->poly->coef[cnt++]= x % 2;
+        res->poly->deg++;
+        x >>= 1;
+    }
+
+    poly_normalize(res->poly);
+
+    return res;
+}
+
+uint8_t gf_elem_to_uint8(gf_elem_t x)
+{
+    uint8_t res = 0;
+    uint8_t mul = 1;
+
+    for (uint8_t i = 0; i <= x->poly->deg; i++)
+    {
+        res += x->poly->coef[i] * mul;
+        mul <<= 1;
+    }
+
+    return res;
 }
 
 

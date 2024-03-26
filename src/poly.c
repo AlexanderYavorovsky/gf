@@ -60,7 +60,7 @@ poly_t poly_copy(poly_t f)
     return g;
 }
 
-static void poly_normalize(poly_t f)
+void poly_normalize(poly_t f)
 {
     uint8_t cnt = 0;
     if (f == NULL)
