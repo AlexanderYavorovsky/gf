@@ -1,18 +1,19 @@
-#include <stdio.h>
-
 #include "gf.h"
 #include "poly.h"
 
+/* irreducible poly x^8 + x^4 + x^3 + x^2 + 1 */
 uint8_t coef2_8[] = {1, 0, 1, 1, 1, 0, 0, 0, 1};
 struct poly ir2_8 = {.deg = 8, .coef = coef2_8};
 struct gf gf2_8_struct = {.p = 2, .poly = &ir2_8};
 gf_t gf2_8 = &gf2_8_struct;
 
+/* irreducible poly x^16 + x^9 + x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1 */
 uint8_t coef2_16[] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1};
 struct poly ir2_16 = {.deg = 16, .coef = coef2_16};
 struct gf gf2_16_struct = {.p = 2, .poly = &ir2_16};
 gf_t gf2_16 = &gf2_16_struct;
 
+/* irreducible poly x^32 + x^22 + x^2 + x + 1 */
 uint8_t coef2_32[] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 struct poly ir2_32 = {.deg = 32, .coef = coef2_32};
@@ -288,21 +289,4 @@ uint32_t gf_elem_to_uint32(gf_elem_t x)
     }
 
     return res;
-}
-
-
-/* ::remove */
-void gf_print(gf_t ff)
-{
-    printf("FF: p:%u ", ff->p);
-    poly_print(ff->poly);
-}
-
-/* ::remove */
-void gf_elem_print(gf_elem_t el)
-{
-    printf("elem:\n  >>");
-    gf_print(el->ff);
-    printf("  >>");
-    poly_print(el->poly);
 }

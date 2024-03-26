@@ -1,5 +1,4 @@
 #include <string.h>
-#include <stdio.h>
 
 #include "poly.h"
 
@@ -200,9 +199,6 @@ poly_t poly_mod(poly_t a, poly_t b, uint8_t p)
         {
             uint8_t d = p_diff(res->coef[m - j], (q * b->coef[n - j + i]) % p, p);
             res->coef[m - j] = d;
-
-            // printf("\n%u, %u) q:%u  d:%u\n", i, j, q, d);
-            // poly_print(res);
         }
     }
     
@@ -230,6 +226,11 @@ uint8_t p_neg(uint8_t x, uint8_t p)
     return (p - x) % p;
 }
 
+uint8_t p_inv(uint8_t x, uint8_t p)
+{
+    return fastpow(x, p - 2) % p;
+}
+
 uint8_t p_sum(uint8_t a, uint8_t b, uint8_t p)
 {
     return (a + b) % p;
@@ -238,11 +239,6 @@ uint8_t p_sum(uint8_t a, uint8_t b, uint8_t p)
 uint8_t p_diff(uint8_t a, uint8_t b, uint8_t p)
 {
     return (a + p_neg(b, p)) % p;
-}
-
-uint8_t p_inv(uint8_t x, uint8_t p)
-{
-    return fastpow(x, p - 2) % p;
 }
 
 poly_t poly_get_zero(uint8_t len)
@@ -283,13 +279,6 @@ uint64_t fastpow(uint8_t x, uint8_t n)
     return res;
 }
 
-static void poly_swap(poly_t *a, poly_t *b)
-{
-    poly_t tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
 poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir)
 {
     poly_t res = poly_get_identity(ir->deg * 2);
@@ -313,17 +302,4 @@ poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir)
     poly_normalize(res);
 
     return res;
-}
-
-/* ::remove */
-void poly_print(poly_t f)
-{
-    if (f == NULL) 
-        return;
-
-    printf("poly: ");
-    for (size_t i = 0; i <= f->deg; i++)
-        printf("%u ", f->coef[i]);
-
-    printf("deg = %u\n", f->deg);
 }
