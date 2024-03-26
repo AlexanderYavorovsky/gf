@@ -200,12 +200,11 @@ gf_elem_t gf_elem_from_array(uint8_t *arr, uint8_t n, gf_t ff)
 gf_elem_t uint8_to_gf_elem(uint8_t x)
 {
     gf_elem_t res = gf_get_zero(gf2_8);
-    uint8_t r;
     uint8_t cnt = 0;
 
     while (x > 0)
     {
-        res->poly->coef[cnt++]= x % 2;
+        res->poly->coef[cnt++] = x % 2;
         res->poly->deg++;
         x >>= 1;
     }
@@ -229,6 +228,67 @@ uint8_t gf_elem_to_uint8(gf_elem_t x)
     return res;
 }
 
+gf_elem_t uint16_to_gf_elem(uint16_t x)
+{
+    gf_elem_t res = gf_get_zero(gf2_16);
+    uint8_t cnt = 0;
+
+    while (x > 0)
+    {
+        res->poly->coef[cnt++] = x % 2;
+        res->poly->deg++;
+        x >>= 1;
+    }
+
+    poly_normalize(res->poly);
+
+    return res;
+}
+
+uint16_t gf_elem_to_uint16(gf_elem_t x)
+{
+    uint16_t res = 0;
+    uint16_t mul = 1;
+
+    for (uint8_t i = 0; i <= x->poly->deg; i++)
+    {
+        res += x->poly->coef[i] * mul;
+        mul <<= 1;
+    }
+
+    return res;
+}
+
+gf_elem_t uint32_to_gf_elem(uint32_t x)
+{
+    gf_elem_t res = gf_get_zero(gf2_32);
+    uint8_t cnt = 0;
+
+    while (x > 0)
+    {
+        res->poly->coef[cnt++] = x % 2;
+        res->poly->deg++;
+        x >>= 1;
+    }
+
+    poly_normalize(res->poly);
+
+    return res;
+}
+
+uint32_t gf_elem_to_uint32(gf_elem_t x)
+{
+    uint32_t res = 0;
+    uint32_t mul = 1;
+
+    for (uint8_t i = 0; i <= x->poly->deg; i++)
+    {
+        res += x->poly->coef[i] * mul;
+        mul <<= 1;
+    }
+
+    return res;
+}
 
 
 /* ::remove */
