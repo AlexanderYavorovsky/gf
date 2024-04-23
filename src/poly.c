@@ -89,7 +89,7 @@ poly_t poly_neg(poly_t f, uint8_t p)
     if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
 
-    res->coef = malloc(f->deg * sizeof(res->coef));
+    res->coef = malloc(f->deg * sizeof(*res->coef));
     if (res->coef == NULL)
         return NULL;
 
@@ -112,7 +112,7 @@ poly_t poly_sum(poly_t a, poly_t b, uint8_t p)
         return NULL;
 
     maxdeg = mymax(a->deg, b->deg);
-    if ((res->coef = calloc(maxdeg, sizeof(res->coef))) == NULL)
+    if ((res->coef = calloc(maxdeg, sizeof(*res->coef))) == NULL)
         return NULL;
 
     res->deg = maxdeg;
@@ -148,7 +148,7 @@ poly_t poly_multiply(poly_t a, poly_t b, uint8_t p)
     if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
     
-    res->coef = calloc(a->deg + b->deg + 2, sizeof(res->coef));
+    res->coef = calloc(a->deg + b->deg + 2, sizeof(*res->coef));
     if (res->coef == NULL)
         return NULL;
 
