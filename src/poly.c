@@ -34,7 +34,7 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
     return f;
 }
 
-poly_t poly_copy(poly_t f)
+poly_t poly_copy(c_poly_t f)
 {
     poly_t g;
 
@@ -74,12 +74,12 @@ int poly_isequal(c_poly_t f, c_poly_t g)
     return f->deg == g->deg && !memcmp(f->coef, g->coef, f->deg + 1);
 }
 
-int poly_iszero(poly_t f)
+int poly_iszero(c_poly_t f)
 {
     return f->deg == 0 && f->coef[0] == 0;
 }
 
-poly_t poly_neg(poly_t f, uint8_t p)
+poly_t poly_neg(c_poly_t f, uint8_t p)
 {
     poly_t res;
 
@@ -103,7 +103,7 @@ poly_t poly_neg(poly_t f, uint8_t p)
     return res;
 }
 
-poly_t poly_sum(poly_t a, poly_t b, uint8_t p)
+poly_t poly_sum(c_poly_t a, c_poly_t b, uint8_t p)
 {
     poly_t res;
     uint8_t maxdeg;
@@ -131,7 +131,7 @@ poly_t poly_sum(poly_t a, poly_t b, uint8_t p)
     return res;
 }
 
-poly_t poly_subtract(poly_t a, poly_t b, uint8_t p)
+poly_t poly_subtract(c_poly_t a, c_poly_t b, uint8_t p)
 {
     poly_t b_neg = poly_neg(b, p);
     poly_t res = poly_sum(a, b_neg, p);
@@ -141,7 +141,7 @@ poly_t poly_subtract(poly_t a, poly_t b, uint8_t p)
     return res;
 }
 
-poly_t poly_multiply(poly_t a, poly_t b, uint8_t p)
+poly_t poly_multiply(c_poly_t a, c_poly_t b, uint8_t p)
 {
     poly_t res;
 
@@ -163,7 +163,7 @@ poly_t poly_multiply(poly_t a, poly_t b, uint8_t p)
     return res;
 }
 
-poly_t poly_mod(poly_t a, poly_t b, uint8_t p)
+poly_t poly_mod(c_poly_t a, c_poly_t b, uint8_t p)
 {
     poly_t res;
     uint8_t m, n, gn_inv;
@@ -196,14 +196,14 @@ poly_t poly_mod(poly_t a, poly_t b, uint8_t p)
     return res;
 }
 
-void poly_vmul(poly_t *a, poly_t b, uint8_t p)
+void poly_vmul(poly_t *a, c_poly_t b, uint8_t p)
 {
     poly_t old = *a;
     *a = poly_multiply(old, b, p);
     poly_free(old);
 }
 
-void poly_vmod(poly_t *a, poly_t b, uint8_t p)
+void poly_vmod(poly_t *a, c_poly_t b, uint8_t p)
 {
     poly_t old = *a;
     *a = poly_mod(old, b, p);
@@ -270,7 +270,7 @@ uint64_t fastpow(uint8_t x, uint8_t n)
     return res;
 }
 
-poly_t poly_fastpow(poly_t x, uint8_t n, uint8_t p, poly_t ir)
+poly_t poly_fastpow(c_poly_t x, uint8_t n, uint8_t p, c_poly_t ir)
 {
     poly_t res = poly_get_identity(ir->deg * 2);
     poly_t mul = poly_copy(x);
