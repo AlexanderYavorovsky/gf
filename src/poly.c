@@ -26,7 +26,7 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
         poly_free(f);
         return NULL;
     }
-    
+
     f->deg = n - 1;
     memcpy(f->coef, arr, sizeof(*f->coef) * n);
     poly_normalize(f);
@@ -89,7 +89,7 @@ poly_t poly_neg(c_poly_t f, uint8_t p)
     if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
 
-    res->coef = malloc(f->deg * sizeof(*res->coef));
+    res->coef = malloc((f->deg + 1) * sizeof(*res->coef));
     if (res->coef == NULL)
         return NULL;
 
@@ -112,7 +112,7 @@ poly_t poly_sum(c_poly_t a, c_poly_t b, uint8_t p)
         return NULL;
 
     maxdeg = mymax(a->deg, b->deg);
-    if ((res->coef = calloc(maxdeg, sizeof(*res->coef))) == NULL)
+    if ((res->coef = calloc(maxdeg + 1, sizeof(*res->coef))) == NULL)
         return NULL;
 
     res->deg = maxdeg;
