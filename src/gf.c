@@ -3,20 +3,20 @@
 
 /* irreducible poly x^8 + x^4 + x^3 + x^2 + 1 */
 uint8_t coef2_8[] = {1, 0, 1, 1, 1, 0, 0, 0, 1};
-struct poly ir2_8 = {.deg = 8, .coef = coef2_8};
+struct poly ir2_8 = {.deg = 8, .coef = coef2_8, .p = 2};
 struct gf gf2_8_struct = {.p = 2, .poly = &ir2_8};
 gf_t gf2_8 = &gf2_8_struct;
 
 /* irreducible poly x^16 + x^9 + x^8 + x^7 + x^6 + x^4 + x^3 + x^2 + 1 */
 uint8_t coef2_16[] = {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1};
-struct poly ir2_16 = {.deg = 16, .coef = coef2_16};
+struct poly ir2_16 = {.deg = 16, .coef = coef2_16, .p = 2};
 struct gf gf2_16_struct = {.p = 2, .poly = &ir2_16};
 gf_t gf2_16 = &gf2_16_struct;
 
 /* irreducible poly x^32 + x^22 + x^2 + x + 1 */
 uint8_t coef2_32[] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-struct poly ir2_32 = {.deg = 32, .coef = coef2_32};
+struct poly ir2_32 = {.deg = 32, .coef = coef2_32, .p = 2};
 struct gf gf2_32_struct = {.p = 2, .poly = &ir2_32};
 gf_t gf2_32 = &gf2_32_struct;
 
@@ -52,7 +52,7 @@ gf_elem_t gf_get_zero(gf_t ff)
 
     if ((zero = malloc(sizeof(*zero))) == NULL) return NULL;
 
-    zero->poly = poly_get_zero(ff->poly->deg + 1);
+    zero->poly = poly_get_zero(ff->poly->deg + 1, ff->p);
     zero->ff = ff;
 
     return zero;
@@ -64,7 +64,7 @@ gf_elem_t gf_get_identity(gf_t ff)
 
     if ((id = malloc(sizeof(*id))) == NULL) return NULL;
 
-    id->poly = poly_get_identity(ff->poly->deg + 1);
+    id->poly = poly_get_identity(ff->poly->deg + 1, ff->p);
     id->ff = ff;
 
     return id;
@@ -78,7 +78,7 @@ gf_elem_t gf_neg(gf_elem_t x)
         return NULL;
 
     neg->ff = x->ff;
-    neg->poly = poly_neg(x->poly, x->ff->p);
+    neg->poly = poly_neg(x->poly);
 
     return neg;
 }
@@ -96,7 +96,7 @@ gf_elem_t gf_inv(gf_elem_t x)
     
     inv->ff = x->ff;
     pow = fastpow(x->ff->p, x->ff->poly->deg) - 2;
-    inv->poly = poly_fastpow(x->poly, pow, x->ff->p, x->ff->poly);
+    inv->poly = poly_fastpow(x->poly, pow, x->ff->poly);
 
     return inv;
 }
@@ -112,7 +112,7 @@ gf_elem_t gf_inv(gf_elem_t x)
         return NULL;
     
     res->ff = a->ff;
-    res->poly = poly_sum(a->poly, b->poly, res->ff->p);
+    res->poly = poly_sum(a->poly, b->poly);
 
     return res;
  }
@@ -128,7 +128,7 @@ gf_elem_t gf_subtract(gf_elem_t a, gf_elem_t b)
         return NULL; 
 
     res->ff = a->ff;
-    res->poly = poly_subtract(a->poly, b->poly, res->ff->p);
+    res->poly = poly_subtract(a->poly, b->poly);
 
     return res;
 }
@@ -145,8 +145,8 @@ gf_elem_t gf_multiply(gf_elem_t a, gf_elem_t b)
         return NULL;
 
     res->ff = a->ff;
-    tmp = poly_multiply(a->poly, b->poly, res->ff->p);
-    res->poly = poly_mod(tmp, a->ff->poly, res->ff->p);
+    tmp = poly_multiply(a->poly, b->poly);
+    res->poly = poly_mod(tmp, a->ff->poly);
 
     poly_free(tmp);
 
@@ -183,8 +183,8 @@ gf_elem_t gf_elem_from_array(uint8_t *arr, uint8_t n, gf_t ff)
     if ((el = malloc(sizeof(*el))) == NULL)
         return NULL;
     
-    tmp_poly = poly_init_from_array(arr, n);
-    el->poly = poly_mod(tmp_poly, ff->poly, ff->p);
+    tmp_poly = poly_init_from_array(arr, n, ff->p);
+    el->poly = poly_mod(tmp_poly, ff->poly);
     el->ff = ff;
 
     poly_free(tmp_poly);

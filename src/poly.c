@@ -11,7 +11,7 @@ void poly_free(poly_t f)
     free(f);
 }
 
-poly_t poly_init_from_array(uint8_t *arr, size_t n)
+poly_t poly_init_from_array(uint8_t *arr, size_t n, uint8_t p)
 {
     poly_t f;
 
@@ -28,6 +28,7 @@ poly_t poly_init_from_array(uint8_t *arr, size_t n)
     }
 
     f->deg = n - 1;
+    f->p = p;
     memcpy(f->coef, arr, sizeof(*f->coef) * n);
     poly_normalize(f);
     
@@ -45,7 +46,7 @@ poly_t poly_copy(c_poly_t f)
         return NULL;
 
     g->deg = f->deg;
-
+    g->p = f->p;
     g->coef = malloc(sizeof(*f->coef) * (f->deg + 1));
     if (g->coef == NULL) 
         return g;
@@ -71,7 +72,7 @@ void poly_normalize(poly_t f)
 
 int poly_isequal(c_poly_t f, c_poly_t g)
 {
-    return f->deg == g->deg && !memcmp(f->coef, g->coef, f->deg + 1);
+    return f->deg == g->deg && f->p == g->p && !memcmp(f->coef, g->coef, f->deg + 1);
 }
 
 int poly_iszero(c_poly_t f)
@@ -79,7 +80,7 @@ int poly_iszero(c_poly_t f)
     return f->deg == 0 && f->coef[0] == 0;
 }
 
-poly_t poly_neg(c_poly_t f, uint8_t p)
+poly_t poly_neg(c_poly_t f)
 {
     poly_t res;
 
@@ -94,19 +95,22 @@ poly_t poly_neg(c_poly_t f, uint8_t p)
         return NULL;
 
     res->deg = f->deg;
-
+    res->p = f->p;
     for (uint8_t i = 0; i <= f->deg; i++)
-        res->coef[i] = (p - f->coef[i]) % p;
+        res->coef[i] = (f->p - f->coef[i]) % f->p;
 
     poly_normalize(res);
 
     return res;
 }
 
-poly_t poly_sum(c_poly_t a, c_poly_t b, uint8_t p)
+poly_t poly_sum(c_poly_t a, c_poly_t b)
 {
     poly_t res;
     uint8_t maxdeg;
+
+    if (a->p != b->p)
+        return NULL;
 
     if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
@@ -116,6 +120,7 @@ poly_t poly_sum(c_poly_t a, c_poly_t b, uint8_t p)
         return NULL;
 
     res->deg = maxdeg;
+    res->p = a->p;
 
     for (uint8_t i = 0; i <= maxdeg; i++)
     {
@@ -123,7 +128,7 @@ poly_t poly_sum(c_poly_t a, c_poly_t b, uint8_t p)
             res->coef[i] += a->coef[i];
         if (i <= b->deg)
             res->coef[i] += b->coef[i];
-        res->coef[i] %= p;
+        res->coef[i] %= a->p;
     }
 
     poly_normalize(res);
@@ -131,19 +136,25 @@ poly_t poly_sum(c_poly_t a, c_poly_t b, uint8_t p)
     return res;
 }
 
-poly_t poly_subtract(c_poly_t a, c_poly_t b, uint8_t p)
+poly_t poly_subtract(c_poly_t a, c_poly_t b)
 {
-    poly_t b_neg = poly_neg(b, p);
-    poly_t res = poly_sum(a, b_neg, p);
+    if (a->p != b->p)
+        return NULL;
+
+    poly_t b_neg = poly_neg(b);
+    poly_t res = poly_sum(a, b_neg);
 
     poly_free(b_neg);
     
     return res;
 }
 
-poly_t poly_multiply(c_poly_t a, c_poly_t b, uint8_t p)
+poly_t poly_multiply(c_poly_t a, c_poly_t b)
 {
     poly_t res;
+
+    if (a->p != b->p)
+        return NULL;
 
     if ((res = malloc(sizeof(*res))) == NULL)
         return NULL;
@@ -153,22 +164,23 @@ poly_t poly_multiply(c_poly_t a, c_poly_t b, uint8_t p)
         return NULL;
 
     res->deg = a->deg + b->deg;
+    res->p = a->p;
 
     for (uint8_t i = 0; i <= a->deg; i++)
         for (uint8_t j = 0; j <= b->deg; j++)
-            res->coef[i + j] = (a->coef[i] * b->coef[j] + res->coef[i + j]) % p;
+            res->coef[i + j] = (a->coef[i] * b->coef[j] + res->coef[i + j]) % a->p;
 
     poly_normalize(res);
 
     return res;
 }
 
-poly_t poly_mod(c_poly_t a, c_poly_t b, uint8_t p)
+poly_t poly_mod(c_poly_t a, c_poly_t b)
 {
     poly_t res;
     uint8_t m, n, gn_inv;
 
-    if (poly_iszero(b))
+    if (a->p != b->p || poly_iszero(b))
         return NULL;
 
     res = poly_copy(a);
@@ -178,16 +190,16 @@ poly_t poly_mod(c_poly_t a, c_poly_t b, uint8_t p)
 
     m = a->deg;
     n = b->deg;
-    gn_inv = p_inv(b->coef[n], p); /* inverse for n-th g coefficient */
+    gn_inv = p_inv(b->coef[n], a->p); /* inverse for n-th b coefficient */
 
     /* i, j are offsets from res leading (m-th) coefficient */
     for (uint8_t i = 0; i <= m - n; i ++) 
     {
-        uint8_t q = (res->coef[m - i] * gn_inv) % p;
+        uint8_t q = (res->coef[m - i] * gn_inv) % a->p;
         for (uint8_t j = i; j <= n + i; j++)
         {
-            uint8_t subtrahend = (q * b->coef[n - j + i]) % p;
-            res->coef[m - j] = p_diff(res->coef[m - j], subtrahend, p);
+            uint8_t subtrahend = (q * b->coef[n - j + i]) % a->p;
+            res->coef[m - j] = p_diff(res->coef[m - j], subtrahend, a->p);
         }
     }
     
@@ -196,17 +208,17 @@ poly_t poly_mod(c_poly_t a, c_poly_t b, uint8_t p)
     return res;
 }
 
-void poly_vmul(poly_t *a, c_poly_t b, uint8_t p)
+void poly_vmul(poly_t *a, c_poly_t b)
 {
     poly_t old = *a;
-    *a = poly_multiply(old, b, p);
+    *a = poly_multiply(old, b);
     poly_free(old);
 }
 
-void poly_vmod(poly_t *a, c_poly_t b, uint8_t p)
+void poly_vmod(poly_t *a, c_poly_t b)
 {
     poly_t old = *a;
-    *a = poly_mod(old, b, p);
+    *a = poly_mod(old, b);
     poly_free(old);
 }
 
@@ -230,21 +242,23 @@ uint8_t p_diff(uint8_t a, uint8_t b, uint8_t p)
     return (a + p_neg(b, p)) % p;
 }
 
-poly_t poly_get_zero(uint8_t len)
+poly_t poly_get_zero(uint8_t len, uint8_t p)
 {
     poly_t zero;
 
-    if ((zero = malloc(sizeof(*zero))) == NULL) return NULL;
+    if ((zero = malloc(sizeof(*zero))) == NULL) 
+        return NULL;
 
     zero->coef = calloc(len, sizeof(*zero->coef));
     zero->deg = 0;
+    zero->p = p;
 
     return zero;
 }
 
-poly_t poly_get_identity(uint8_t len)
+poly_t poly_get_identity(uint8_t len, uint8_t p)
 {
-    poly_t id = poly_get_zero(len);
+    poly_t id = poly_get_zero(len, p);
     
     if (id == NULL)
         return NULL;
@@ -270,9 +284,9 @@ uint64_t fastpow(uint8_t x, uint8_t n)
     return res;
 }
 
-poly_t poly_fastpow(c_poly_t x, uint8_t n, uint8_t p, c_poly_t ir)
+poly_t poly_fastpow(c_poly_t x, uint8_t n, c_poly_t ir)
 {
-    poly_t res = poly_get_identity(ir->deg * 2);
+    poly_t res = poly_get_identity(ir->deg * 2, x->p);
     poly_t mul = poly_copy(x);
 
     poly_t tmp;
@@ -280,12 +294,12 @@ poly_t poly_fastpow(c_poly_t x, uint8_t n, uint8_t p, c_poly_t ir)
     {
         if (n % 2)
         {
-            poly_vmul(&res, mul, p);
-            poly_vmod(&res, ir, p);
+            poly_vmul(&res, mul);
+            poly_vmod(&res, ir);
         }
 
-        poly_vmul(&mul, mul, p);
-        poly_vmod(&mul, ir, p);
+        poly_vmul(&mul, mul);
+        poly_vmod(&mul, ir);
         n >>= 1;
     }
     
