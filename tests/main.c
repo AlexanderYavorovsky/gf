@@ -440,7 +440,7 @@ MU_TEST(test_poly_fastpow)
     
     poly_t r = poly_init_from_array(a, 3, 2);
     poly_t x = poly_init_from_array(b, 3, 2);
-    poly_t res = poly_fastpow(x, 2, r);
+    poly_t res = poly_fastpow_and_mod(x, 2, r);
     poly_t act = poly_init_from_array(ac, 2, 2);
 
     mu_check(poly_isequal(act, res));

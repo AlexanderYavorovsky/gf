@@ -284,7 +284,7 @@ uint64_t fastpow(uint8_t x, uint8_t n)
     return res;
 }
 
-poly_t poly_fastpow(c_poly_t x, uint8_t n, c_poly_t ir)
+poly_t poly_fastpow_and_mod(c_poly_t x, uint8_t n, c_poly_t ir)
 {
     poly_t res = poly_get_identity(ir->deg * 2, x->p);
     poly_t mul = poly_copy(x);

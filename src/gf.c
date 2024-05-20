@@ -93,10 +93,10 @@ gf_elem_t gf_inv(gf_elem_t x)
 
     if ((inv = malloc(sizeof(*inv))) == NULL)
         return NULL;
-    
+
     inv->ff = x->ff;
     pow = fastpow(x->ff->p, x->ff->poly->deg) - 2;
-    inv->poly = poly_fastpow(x->poly, pow, x->ff->poly);
+    inv->poly = poly_fastpow_and_mod(x->poly, pow, x->ff->poly);
 
     return inv;
 }
