@@ -80,4 +80,4 @@ poly_t poly_get_identity(uint8_t len, uint8_t p);
 uint64_t fastpow(uint8_t x, uint8_t n);
 
 /* return x to the n-th power in Fp/(ir) */
-poly_t poly_fastpow(c_poly_t x, uint8_t n, c_poly_t ir);
+poly_t poly_fastpow_and_mod(c_poly_t x, uint8_t n, c_poly_t ir);
