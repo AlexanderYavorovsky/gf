@@ -289,7 +289,6 @@ poly_t poly_fastpow_and_mod(c_poly_t x, uint8_t n, c_poly_t ir)
     poly_t res = poly_get_identity(ir->deg * 2, x->p);
     poly_t mul = poly_copy(x);
 
-    poly_t tmp;
     while (n > 0)
     {
         if (n % 2)
@@ -302,7 +301,7 @@ poly_t poly_fastpow_and_mod(c_poly_t x, uint8_t n, c_poly_t ir)
         poly_vmod(&mul, ir);
         n >>= 1;
     }
-    
+
     poly_free(mul);
     poly_normalize(res);
 
